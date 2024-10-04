@@ -78,9 +78,7 @@ class MainWindow:
 
 def main():
     window_settings = SettingsLoader().load_settings("game.settings.window")
-    print(window_settings)
     hewo_face_settings = SettingsLoader().load_settings("game.settings.hewo")
-    print(hewo_face_settings)
     main_window = MainWindow(settings=window_settings, layout_list=[Face()], active_layout=0)
     main_window.run()
 
