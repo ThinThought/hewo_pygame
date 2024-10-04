@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='hewo_pygame',
-    version='0.1.0',
+    version='0.1.0a',
     description='A Pygame project for modular game elements with reusable objects.',
     author='Diego Delgado Chaves, Daiego43',
     author_email='diedelcha@gmail.com',
