@@ -1,13 +1,14 @@
 import pygame
 from game.objects.hewo.eye import Eye
 from game.objects.hewo.mouth import Mouth
-from game.settings.settings_loader import SettingsLoader
+from game.settings import SettingsLoader
 
 PHI = (1 + 5 ** (1 / 2)) / 2
 
 class Face:
     def __init__(self, settings=None):
-        if settings is None:
+        self.settings = settings
+        if self.settings is None:
             self.settings = SettingsLoader().load_settings("game.settings.hewo")  # Si no se pasa nada, usa la configuración de 'face' en settings
             print("using default settings")
         self.size = [PHI * self.settings['face']['size'],
@@ -112,9 +113,10 @@ def pixelate(surface, pixels_factor=128, size=None):
     return surface
 
 
-if __name__ == '__main__':
+# Test face object
+def test_component():
     pygame.init()
-    settings = SettingsLoader().load_settings("settings.hewo")
+    settings = SettingsLoader().load_settings("game.settings.hewo")
     print(settings)
     screen = pygame.display.set_mode((800, 600))
     face = Face()
@@ -131,3 +133,7 @@ if __name__ == '__main__':
                 pygame.quit()
                 quit()
             face.handle_event(event)
+
+
+if __name__ == '__main__':
+    test_component()

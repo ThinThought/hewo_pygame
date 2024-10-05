@@ -2,7 +2,7 @@ import os
 import pygame
 import logging
 import screeninfo
-from game.settings.settings_loader import SettingsLoader
+from game.settings import SettingsLoader
 from game.objects.hewo.face import Face
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(name)s: %(message)s')
@@ -79,7 +79,11 @@ class MainWindow:
 def main():
     window_settings = SettingsLoader().load_settings("game.settings.window")
     hewo_face_settings = SettingsLoader().load_settings("game.settings.hewo")
-    main_window = MainWindow(settings=window_settings, layout_list=[Face()], active_layout=0)
+    main_window = MainWindow(settings=window_settings,
+                             layout_list=[
+                                 Face(settings=hewo_face_settings)
+                             ],
+                             active_layout=0)
     main_window.run()
 
 if __name__ == '__main__':

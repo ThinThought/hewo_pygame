@@ -5,8 +5,8 @@ face:
     - 127
   size: 300
   position:
-    - 220
-    - 110
+    - 200
+    - 100
   max_size:
     - 940
     - 640

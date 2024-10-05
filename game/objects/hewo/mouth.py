@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 from scipy.interpolate import make_interp_spline
-from game.settings.settings_loader import SettingsLoader
+from game.settings import SettingsLoader
 
 # Cargamos el diccionario de settings
 settings = SettingsLoader().load_settings("game.settings.hewo")
