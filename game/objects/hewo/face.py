@@ -2,16 +2,14 @@ import pygame
 import copy
 from game.objects.hewo.eye import Eye
 from game.objects.hewo.mouth import Mouth
-from game.settings import SettingsLoader
+from game.settings import SettingsLoader, create_logger
 
-PHI = (1 + 5 ** (1 / 2)) / 2
+PHI = ((1 + 5 ** (1 / 2)) / 2)  # Proporción áurea
 
 class Face:
-    def __init__(self, settings=None):
+    def __init__(self, settings=None, object_name="Face"):
         self.settings = settings
-        if self.settings is None:
-            self.settings = SettingsLoader().load_settings("game.settings.hewo")  # Si no se pasa nada, usa la configuración de 'face' en settings
-            print("using default settings")
+        self.logger = create_logger(object_name)
         self.size = [PHI * self.settings['face']['size'],
                      self.settings['face']['size']]
         self.position = self.settings['face']['position']
@@ -44,9 +42,11 @@ class Face:
         self.face_surface = pygame.Surface(self.size)
         self.eye_size = [self.size[0] / 5, self.size[1] / 5 * 4]
         self.mouth_size = [self.size[0] / 5 * 3, self.size[1] / 5]
+
         self.left_eye_pos = [0, 0]  # Posición en la superficie
         self.right_eye_pos = [self.eye_size[0] * 4, 0]
         self.mouth_pos = [self.eye_size[0], self.eye_size[1]]
+
         self.left_eye.position = self.left_eye_pos
         self.right_eye.position = self.right_eye_pos
         self.mouth.position = self.mouth_pos
@@ -54,20 +54,28 @@ class Face:
         self.right_eye.size = self.eye_size
         self.mouth.size = self.mouth_size
 
+        self.left_eye.update()
+        self.right_eye.update()
+        self.mouth.update()
+
 
     def set_size(self, size):
-        self.size[0] = max(PHI, min(size[0], self.max_size[0]))
-        self.size[1] = max(1, min(size[1], self.max_size[1]))
+        self.size = size
+        self.eye_size = [self.size[0] / 5, self.size[1] / 5 * 4]
+        self.mouth_size = [self.size[0] / 5 * 3, self.size[1] / 5]
+        self.left_eye.set_size(self.eye_size)
+        self.right_eye.set_size(self.eye_size)
+        self.mouth.set_size(self.mouth_size)
 
     def set_position(self, pos):
         self.position[0] = max(0, min(pos[0], self.max_size[0] - self.size[0]))
         self.position[1] = max(0, min(pos[1], self.max_size[1] - self.size[1]))
+        self.left_eye.set_position([0, 0] ) # Posición en la superficie
+        self.right_eye.set_position([self.eye_size[0] * 4, 0])
+        self.mouth.position = [self.eye_size[0], self.eye_size[1]]
 
     def update(self):
         self.update_face()
-        self.left_eye.update()
-        self.right_eye.update()
-        self.mouth.update()
 
     def handle_event(self, event):
         self.left_eye.handle_event(event)
@@ -75,6 +83,7 @@ class Face:
         self.mouth.handle_event(event)
 
     def draw(self, surface):
+        self.face_surface = pygame.Surface(self.size)
         self.face_surface.fill(self.color)
         self.left_eye.draw(self.face_surface)
         self.right_eye.draw(self.face_surface)

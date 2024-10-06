@@ -9,24 +9,36 @@ class HeWo(Face):
         self.logger = create_logger(object_name)
         self.settings = settings
         super().__init__(settings=self.settings)
-        self.key_stroke = 0
+        self.key_down_event = {
+            pygame.K_SPACE: self.space_action,
+            pygame.K_ESCAPE: self.escape_action,
+        }
+        self.key_pressed_events = {
+            pygame.K_UP: self.move_up,
+            pygame.K_DOWN: self.move_down,
+            pygame.K_LEFT: self.move_left,
+            pygame.K_RIGHT: self.move_right,
+            pygame.K_a: self.increase_size,
+            pygame.K_b: self.decrease_size,
+        }
+        self.move_step = 10
+        self.size_step = 1
+
+    def update(self):
+        self.update_face()
+        self.handle_keypressed()
 
     def handle_event(self, event):
         self.left_eye.handle_event(event)
         self.right_eye.handle_event(event)
         self.mouth.handle_event(event)
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.logger.info("Space key pressed" + "-" * 30)
-            vec = self.generate_random_vector()
-            self.set_emotion(self.emotion_dict_from_values(vec))
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            self.logger.info("Escape key pressed" + "-" * 30)
-            exit(0)
+        if event.type == pygame.KEYDOWN:
+            self.handle_keydown(event.key)
 
     def generate_random_vector(self, n=22):
         vec = [random.randint(0, 100) for _ in range(n)]
         self.logger.info("Generating random emotion vector")
-        return [random.randint(0, 100) for _ in range(n)]
+        return vec
 
     def emotion_dict_from_values(self, values):
         return {
@@ -67,6 +79,58 @@ class HeWo(Face):
         self.right_eye.set_emotion(retl, rebl)
         self.mouth.set_emotion(tl, bl)
 
+    ## Integración del control
+    def handle_keydown(self, key):
+        action = self.key_down_event.get(key, None)
+        if action:
+            action()
+
+    def handle_keypressed(self):
+        """ Maneja el estado de las teclas que están pulsadas """
+        keys = pygame.key.get_pressed()  # Obtiene el estado de todas las teclas
+        for key, action in self.key_pressed_events.items():
+            if keys[key]:
+                action()
+
+    def space_action(self):
+        self.logger.info("Space      key down")
+
+    def escape_action(self):
+        self.logger.info("Escape     key down")
+        exit(0)
+
+    def move_up(self):
+        self.position[1] -= self.move_step
+        self.logger.info("Move up    key pressed")
+
+    def move_down(self):
+        self.position[1] += self.move_step
+        self.logger.info("Move down  key pressed")
+
+    def move_left(self):
+        self.position[0] -= self.move_step
+        self.logger.info("Move left  key pressed")
+
+    def move_right(self):
+        self.position[0] += self.move_step
+        self.update_face()
+        self.logger.info("Move right key pressed")
+
+    def increase_size(self):
+        s = self.size[1]
+        s += self.size_step
+        size = [((1 + 5 ** (1 / 2)) / 2) * s, s]
+        self.set_size(size)
+        # self.update_face()
+        self.logger.info("Increase size")
+
+    def decrease_size(self):
+        s = self.size[1]
+        s -= self.size_step
+        size = [((1 + 5 ** (1 / 2)) / 2) * s, s]
+        self.set_size(size)
+        self.logger.info("Decrease size")
+
 
 def test_component():
     pygame.init()
@@ -81,6 +145,7 @@ def test_component():
                 running = False
             hewo.handle_event(event)
         hewo.update()
+        screen.fill((255, 255, 255))
         hewo.draw(screen)
         pygame.display.flip()
 

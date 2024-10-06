@@ -79,7 +79,13 @@ class Mouth:
         self.top_lip = Lip(self.size, self.position, self.settings['upper_lip'], object_name=f"{object_name} - Top Lip")
         self.bot_lip = Lip(self.size, self.position, self.settings['lower_lip'], object_name=f"{object_name} - Bot Lip")
 
+    def set_size(self, size):
+        self.size = size
+        self.top_lip.size = size
+        self.bot_lip.size = size
+
     def draw(self, surface):
+        self.surface = pygame.Surface(self.size)
         self.surface.fill(self.color)
         self.top_lip.draw(self.surface)
         self.bot_lip.draw(self.surface)

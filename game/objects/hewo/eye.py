@@ -7,7 +7,6 @@ import copy
 
 class Pupil:
     def __init__(self, size, position, settings, object_name="Pupil"):
-        # TODO: Shrink the pupil to extract new emotions.
         self.logger = create_logger(object_name)
         self.size = size
         self.position = position
@@ -51,11 +50,30 @@ class EyeLash:
         self.flip = self.settings['flip']
         self.set_emotion(self.emotion)
 
+    def set_position(self, position):
+        self.position = position
+        x, y = self.position
+        w, h = self.size
+        self.polygon_points = [
+            [0 + x, 0 + y],
+            [0 + x, h + y],
+            [w / 2 + x, h + y],
+            [w + x, h + y],
+            [w + x, 0 + y],
+            [w / 2 + x, 0 + y]
+        ]
+        self.update_polygon_points()
+
+    def set_size(self, size):
+        self.size = size
+        self.max_emotion = self.size[1]
+        self.update_polygon_points()
+
     def handle_event(self, event):
         pass
 
     def update(self):
-        pass
+        self.update_polygon_points()
 
     def draw(self, surface):
         polygon = self.create_polygon()
@@ -89,10 +107,19 @@ class EyeLash:
         self.logger.debug(f"emotion set: {self.emotion}")
 
     def update_polygon_points(self):
+        x, y = self.position
+        w, h = self.size
+        self.polygon_points = [
+            [0 + x, 0 + y],
+            [0 + x, h + y],
+            [w / 2 + x, h + y],
+            [w + x, h + y],
+            [w + x, 0 + y],
+            [w / 2 + x, 0 + y]
+        ]
         indices = [1, 2, 3]
         if self.flip:
             indices = [0, 5, 4]
-
         for i, tup in enumerate(zip(indices, self.emotion)):
             self.polygon_points[tup[0]][1] = self.position[1] + self.size[1] * (tup[1] / 100)
         self.logger.debug(f"polygon points updated: {self.polygon_points}")
@@ -163,3 +190,18 @@ class Eye:
         bot_emotion = self.bot_lash.get_emotion()
         self.logger.debug(f"current emotion: {top_emotion}, {bot_emotion}")
         return top_emotion, bot_emotion
+
+    def set_size(self, size):
+        self.size = size
+        self.lash_size = (self.size[0], self.size[1] / 2)
+        self.top_lash.set_size(self.lash_size)
+        self.bot_lash.set_size(self.lash_size)
+        self.pupil.size = self.size
+
+    def set_position(self, position):
+        self.position = position
+        self.t_pos = (self.position[0], self.position[1])
+        self.b_pos = (self.position[0], self.position[1] + self.size[1] / 2)
+        self.top_lash.set_position(self.t_pos)
+        self.bot_lash.set_position(self.b_pos)
+        self.pupil.position = position

@@ -61,7 +61,7 @@ class MainWindow:
 
     def update(self):
         if self.active_layout is not None:
-            self.layout_list[self.active_layout].draw(self.screen)
+            self.layout_list[self.active_layout].update()
 
     def draw(self):
         self.screen.fill(self.background_color)

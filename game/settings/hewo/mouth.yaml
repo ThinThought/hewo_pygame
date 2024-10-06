@@ -1,7 +1,7 @@
 mouth:
   bg_color:
-    - 100
-    - 139
+    - 0 #100
+    - 0 #139
     - 127
   upper_lip:
     lip_width: 5
