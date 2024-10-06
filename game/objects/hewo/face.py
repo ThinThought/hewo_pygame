@@ -35,27 +35,25 @@ class Face:
         self.right_eye_settings = self.settings['eye']
 
         self.mouth = Mouth(self.mouth_size, self.mouth_pos, settings=self.mouth_settings)
-        self.left_eye = Eye(self.eye_size, self.left_eye_pos, settings=self.left_eye_settings)
-        self.right_eye = Eye(self.eye_size, self.right_eye_pos, settings=self.right_eye_settings)
+        self.left_eye = Eye(self.eye_size, self.left_eye_pos, settings=self.left_eye_settings, object_name="Left Eye")
+        self.right_eye = Eye(self.eye_size, self.right_eye_pos, settings=self.right_eye_settings, object_name="Right Eye")
 
-        self.set_face_elements()
 
-    def set_face_elements(self):
-        '''
-        TODO: Migrar esta funcion a un metodo llamado face_update() o algo asi
-        '''
+    def update_face(self):
         self.face_surface = pygame.Surface(self.size)
         self.eye_size = [self.size[0] / 5, self.size[1] / 5 * 4]
         self.mouth_size = [self.size[0] / 5 * 3, self.size[1] / 5]
-
         self.left_eye_pos = [0, 0]  # Posición en la superficie
         self.right_eye_pos = [self.eye_size[0] * 4, 0]
         self.mouth_pos = [self.eye_size[0], self.eye_size[1]]
-        # Re-inicializar ojos y boca con sus posiciones y tamaños
-        print("Setting new settings for left_eye:", self.left_eye_settings['top_lash']['emotion'])
-        self.left_eye = Eye(self.eye_size, self.left_eye_pos, settings=self.left_eye_settings)
-        self.right_eye = Eye(self.eye_size, self.right_eye_pos, settings=self.right_eye_settings)
-        self.mouth = Mouth(self.mouth_size, self.mouth_pos, settings=self.mouth_settings)
+        # ACTUALIZAR
+        self.left_eye.position = self.left_eye_pos
+        self.right_eye.position = self.right_eye_pos
+        self.mouth.position = self.mouth_pos
+        self.left_eye.size = self.eye_size
+        self.right_eye.size = self.eye_size
+        self.mouth.size = self.mouth_size
+
 
     def set_size(self, size):
         self.size[0] = max(PHI, min(size[0], self.max_size[0]))
@@ -66,6 +64,7 @@ class Face:
         self.position[1] = max(0, min(pos[1], self.max_size[1] - self.size[1]))
 
     def update(self):
+        self.update_face()
         self.left_eye.update()
         self.right_eye.update()
         self.mouth.update()

@@ -2,9 +2,20 @@ import importlib
 import pathlib
 import yaml
 import logging
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(name)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(name)s: %(message)s')
 
+def create_logger(name, debug=True):
+    msg = "LOGGER INIT FOR OBJECT: " + name
+    logger = logging.getLogger(name)
+    if debug:
+        logger.setLevel(logging.DEBUG)
+        msg += " - in DEBUG mode"
+    else:
+        logger.setLevel(logging.INFO)
+        msg += " - in INFO mode"
 
+    logger.info(msg)
+    return logger
 
 class SettingsLoader:
     def __init__(self, module_name=None):

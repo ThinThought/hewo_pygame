@@ -1,9 +1,8 @@
 import pygame
-import logging
 import numpy as np
 from scipy.interpolate import make_interp_spline
-from game.settings import SettingsLoader
-logger = logging.getLogger(__name__)
+from game.settings import create_logger
+
 
 
 class Pupil:
@@ -92,11 +91,9 @@ class EyeLash:
 
 class Eye:
     # Here I should initialize all the elements that make up the eye
-    def __init__(self, size, position, settings):
+    def __init__(self, size, position, settings, object_name="Eye"):
+        self.logger = create_logger(object_name)
         self.settings = settings
-        if settings is None:
-
-            self.settings = SettingsLoader().load_settings("game.settings.hewo")['eye']
         self.size = size
         self.position = position
         self.BG_COLOR = self.settings['bg_color']
@@ -145,12 +142,9 @@ class Eye:
         self.bot_lash.update()
 
     def set_emotion(self, t_emotion, b_emotion):
+        self.logger.debug(f"Setting emotion: {t_emotion}, {b_emotion}")
         self.top_lash.set_emotion(t_emotion)
         self.bot_lash.set_emotion(b_emotion)
 
     def get_emotion(self):
         return self.top_lash.get_emotion(), self.bot_lash.get_emotion()
-
-
-if __name__ == '__main__':
-    eye_settings = SettingsLoader().load_settings("game.settings.hewo")['eye']

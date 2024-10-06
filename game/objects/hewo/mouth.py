@@ -1,8 +1,7 @@
 import pygame
 import numpy as np
 from scipy.interpolate import make_interp_spline
-from game.settings import SettingsLoader
-
+from game.settings import create_logger
 
 class Lip:
     def __init__(self, size, position, settings):
@@ -50,9 +49,8 @@ class Lip:
 
 
 class Mouth:
-    def __init__(self, size, position, settings=None):
-        if settings is None:
-            settings = SettingsLoader().load_settings("game.settings.hewo")['mouth']
+    def __init__(self, size, position, settings, object_name="Mouth"):
+        self.logger = create_logger(object_name)
         self.size = size
         self.position = position
         self.surface = pygame.Surface(self.size)
@@ -79,6 +77,7 @@ class Mouth:
         """
         Establece la emoción de los labios superior e inferior usando vectores de 5 valores.
         """
+        self.logger.debug(f"Setting emotion: {top_lip_percentages}, {bot_lip_percentages}")
         self.top_lip.set_emotion(top_lip_percentages)
         self.bot_lip.set_emotion(bot_lip_percentages)
 
