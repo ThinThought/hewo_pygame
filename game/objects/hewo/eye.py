@@ -142,9 +142,12 @@ class Eye:
         self.bot_lash.update()
 
     def set_emotion(self, t_emotion, b_emotion):
-        self.logger.debug(f"Setting emotion: {t_emotion}, {b_emotion}")
+        self.logger.debug(f"emotion set: {t_emotion}, {b_emotion}")
         self.top_lash.set_emotion(t_emotion)
         self.bot_lash.set_emotion(b_emotion)
 
     def get_emotion(self):
-        return self.top_lash.get_emotion(), self.bot_lash.get_emotion()
+        top_emotion = self.top_lash.get_emotion()
+        bot_emotion = self.bot_lash.get_emotion()
+        self.logger.debug(f"current emotion: {top_emotion}, {bot_emotion}")
+        return top_emotion, bot_emotion

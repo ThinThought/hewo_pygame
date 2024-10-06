@@ -37,6 +37,12 @@ class Lip:
         """
         self.emotion = emotion_vector
 
+    def get_emotion(self):
+        """
+        Obtiene el vector de emoción actual del labio.
+        """
+        return self.emotion
+
     def update(self):
         pass
 
@@ -77,12 +83,15 @@ class Mouth:
         """
         Establece la emoción de los labios superior e inferior usando vectores de 5 valores.
         """
-        self.logger.debug(f"Setting emotion: {top_lip_percentages}, {bot_lip_percentages}")
         self.top_lip.set_emotion(top_lip_percentages)
         self.bot_lip.set_emotion(bot_lip_percentages)
+        self.logger.debug(f"emotion set: {top_lip_percentages}, {bot_lip_percentages}")
 
     def get_emotion(self):
         """
         Obtiene los vectores de emoción actuales de los labios superior e inferior.
         """
-        return self.top_lip.emotion, self.bot_lip.emotion
+        top_emotion = self.top_lip.get_emotion()
+        bot_emotion = self.bot_lip.get_emotion()
+        self.logger.debug(f"current emotion: {top_emotion}, {bot_emotion}")
+        return top_emotion, bot_emotion
