@@ -1,4 +1,5 @@
 import pygame
+import copy
 from game.objects.hewo.eye import Eye
 from game.objects.hewo.mouth import Mouth
 from game.settings import SettingsLoader
@@ -30,11 +31,11 @@ class Face:
         self.mouth_pos = [self.eye_size[0], self.eye_size[1]]
 
         # Inicialización de los ojos y la boca usando settings correspondientes
-        self.mouth_settings = self.settings['mouth']
-        self.left_eye_settings = self.settings['eye']
-        self.right_eye_settings = self.settings['eye']
+        self.mouth_settings = copy.deepcopy(self.settings['mouth'])
+        self.left_eye_settings = copy.deepcopy(self.settings['eye'])
+        self.right_eye_settings = copy.deepcopy(self.settings['eye'])
 
-        self.mouth = Mouth(self.mouth_size, self.mouth_pos, settings=self.mouth_settings)
+        self.mouth = Mouth(self.mouth_size, self.mouth_pos, settings=self.mouth_settings, object_name="Mouth")
         self.left_eye = Eye(self.eye_size, self.left_eye_pos, settings=self.left_eye_settings, object_name="Left Eye")
         self.right_eye = Eye(self.eye_size, self.right_eye_pos, settings=self.right_eye_settings, object_name="Right Eye")
 
@@ -46,7 +47,6 @@ class Face:
         self.left_eye_pos = [0, 0]  # Posición en la superficie
         self.right_eye_pos = [self.eye_size[0] * 4, 0]
         self.mouth_pos = [self.eye_size[0], self.eye_size[1]]
-        # ACTUALIZAR
         self.left_eye.position = self.left_eye_pos
         self.right_eye.position = self.right_eye_pos
         self.mouth.position = self.mouth_pos

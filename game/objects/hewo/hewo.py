@@ -1,3 +1,5 @@
+import copy
+import random
 import pygame
 from game.objects.hewo.face import Face
 from game.settings import SettingsLoader, create_logger
@@ -14,16 +16,28 @@ class HeWo(Face):
         self.left_eye.handle_event(event)
         self.right_eye.handle_event(event)
         self.mouth.handle_event(event)
-        # Pres space to change emotion
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             self.logger.info("Space key pressed" + "-" * 30)
-            emotion_dict = self.get_emotion()
-            emotion_dict['letl_a'] += 1
-            self.set_emotion(emotion_dict)
-            self.key_stroke += 1
+            vec = self.generate_random_vector()
+            self.set_emotion(self.emotion_dict_from_values(vec))
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.logger.info("Escape key pressed" + "-" * 30)
             exit(0)
+
+    def generate_random_vector(self, n=22):
+        vec = [random.randint(0, 100) for _ in range(n)]
+        self.logger.info("Generating random emotion vector")
+        return [random.randint(0, 100) for _ in range(n)]
+
+    def emotion_dict_from_values(self, values):
+        return {
+            'letl_a': values[0], 'letl_b': values[1], 'letl_c': values[2],
+            'lebl_a': values[3], 'lebl_b': values[4], 'lebl_c': values[5],
+            'retl_a': values[6], 'retl_b': values[7], 'retl_c': values[8],
+            'rebl_a': values[9], 'rebl_b': values[10], 'rebl_c': values[11],
+            'tl_a': values[12], 'tl_b': values[13], 'tl_c': values[14], 'tl_d': values[15], 'tl_e': values[16],
+            'bl_a': values[17], 'bl_b': values[18], 'bl_c': values[19], 'bl_d': values[20], 'bl_e': values[21]
+        }
 
     def get_emotion(self):
         letl, lebl = self.left_eye.get_emotion()
@@ -37,6 +51,8 @@ class HeWo(Face):
             'tl_a': tl[0], 'tl_b': tl[1], 'tl_c': tl[2], 'tl_d': tl[3], 'tl_e': tl[4],
             'bl_a': bl[0], 'bl_b': bl[1], 'bl_c': bl[2], 'bl_d': bl[3], 'bl_e': bl[4]
         }
+        self.logger.info(f"Emotion Vector: {emotion_dict.values()}")
+        self.logger.debug(f"Emotion Vector: {emotion_dict.values()}")
         return emotion_dict
 
     def set_emotion(self, emotion_dict):

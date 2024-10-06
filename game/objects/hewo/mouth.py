@@ -1,10 +1,14 @@
+import copy
+
 import pygame
 import numpy as np
 from scipy.interpolate import make_interp_spline
 from game.settings import create_logger
 
+
 class Lip:
-    def __init__(self, size, position, settings):
+    def __init__(self, size, position, settings, object_name="Lip"):
+        self.logger = create_logger(object_name)
         self.size = size
         self.position = position
         self.color = tuple(settings['color'])
@@ -23,13 +27,21 @@ class Lip:
             self.clamp(self.emotion[2] / 100 * self.size[1], self.lip_width, self.size[1] - self.lip_width),
             self.clamp(self.emotion[4] / 100 * self.size[1], self.lip_width, self.size[1] - self.lip_width)
         ]
-
+        x_points = self.fix_x_points(x_points)
         spline = make_interp_spline(x_points, y_points, k=2)
         x_range = np.linspace(min(x_points), max(x_points), 500)
         return [(int(x), int(spline(x))) for x in x_range]
 
     def clamp(self, value, min_value, max_value):
         return max(min_value, min(value, max_value))
+
+    def fix_x_points(self, x_points):
+        # Detecta el duplicado y lo cambiará por un valor ligeramente diferente
+        if int(x_points[0]) == int(x_points[1]):
+            x_points[0] -= 1
+        if int(x_points[1]) == int(x_points[2]):
+            x_points[2] += 1
+        return x_points
 
     def set_emotion(self, emotion_vector):
         """
@@ -57,14 +69,15 @@ class Lip:
 class Mouth:
     def __init__(self, size, position, settings, object_name="Mouth"):
         self.logger = create_logger(object_name)
+        self.settings = copy.deepcopy(settings)
         self.size = size
         self.position = position
         self.surface = pygame.Surface(self.size)
-        self.color = tuple(settings['bg_color'])
+        self.color = self.settings['bg_color']
 
         # Creación de los labios superior e inferior utilizando los settings
-        self.top_lip = Lip(self.size, self.position, settings['upper_lip'])
-        self.bot_lip = Lip(self.size, self.position, settings['lower_lip'])
+        self.top_lip = Lip(self.size, self.position, self.settings['upper_lip'], object_name=f"{object_name} - Top Lip")
+        self.bot_lip = Lip(self.size, self.position, self.settings['lower_lip'], object_name=f"{object_name} - Bot Lip")
 
     def draw(self, surface):
         self.surface.fill(self.color)

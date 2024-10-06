@@ -3,7 +3,7 @@ import pygame
 import logging
 import screeninfo
 from game.settings import SettingsLoader
-from game.objects.hewo.face import Face
+from game.objects.hewo.hewo import HeWo
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(name)s: %(message)s')
 
@@ -50,7 +50,7 @@ class MainWindow:
 
             # Pass the event_handler to the active canvas
             if self.active_layout is not None:
-                self.layout_list[self.active_layout].draw(self.screen)
+                self.layout_list[self.active_layout].handle_event(event)
 
     def set_active_layout(self, layout_index):
         if layout_index < len(self.layout_list):
@@ -78,10 +78,10 @@ class MainWindow:
 
 def main():
     window_settings = SettingsLoader().load_settings("game.settings.window")
-    hewo_face_settings = SettingsLoader().load_settings("game.settings.hewo")
+    hewo_settings = SettingsLoader().load_settings("game.settings.hewo")
     main_window = MainWindow(settings=window_settings,
                              layout_list=[
-                                 Face(settings=hewo_face_settings)
+                                 HeWo(settings=hewo_settings)
                              ],
                              active_layout=0)
     main_window.run()

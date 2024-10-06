@@ -2,12 +2,13 @@ import pygame
 import numpy as np
 from scipy.interpolate import make_interp_spline
 from game.settings import create_logger
-
+import copy
 
 
 class Pupil:
-    def __init__(self, size, position, settings):
+    def __init__(self, size, position, settings, object_name="Pupil"):
         # TODO: Shrink the pupil to extract new emotions.
+        self.logger = create_logger(object_name)
         self.size = size
         self.position = position
         self.color = settings['color']
@@ -29,12 +30,14 @@ class Pupil:
 
 
 class EyeLash:
-    def __init__(self, size, position, settings):
+    def __init__(self, size, position, settings, object_name="EyeLash"):
+        self.logger = create_logger(object_name)
+        self.settings = copy.deepcopy(settings)
         self.size = size
         self.position = position
-        self.color = settings['color']
+        self.color = self.settings['color']
         self.max_emotion = self.size[1]
-        self.emotion_pcts = settings['emotion']
+        self.emotion = self.settings['emotion']
         x, y = position
         w, h = size
         self.polygon_points = [
@@ -45,8 +48,8 @@ class EyeLash:
             [w + x, 0 + y],
             [w / 2 + x, 0 + y]
         ]
-        self.flip = settings['flip']
-        self.set_emotion(self.emotion_pcts)
+        self.flip = self.settings['flip']
+        self.set_emotion(self.emotion)
 
     def handle_event(self, event):
         pass
@@ -55,6 +58,10 @@ class EyeLash:
         pass
 
     def draw(self, surface):
+        polygon = self.create_polygon()
+        pygame.draw.polygon(surface, self.color, polygon)
+
+    def create_polygon(self):
         points = self.polygon_points[1:4]
         if self.flip:
             points = [self.polygon_points[0], self.polygon_points[5], self.polygon_points[4]]
@@ -69,31 +76,33 @@ class EyeLash:
         if self.flip:
             interpolated_points.reverse()
             polygon = self.polygon_points[1:4] + interpolated_points
-        pygame.draw.polygon(surface, self.color, polygon)
-
-    def set_emotion_pcts(self, emotion):
-        for i, e in enumerate(emotion):
-            self.emotion_pcts[i] = max(0, min(e, 100))
+        return polygon
 
     def get_emotion(self):
-        return self.emotion_pcts
+        self.logger.debug(f"current emotion: {self.emotion}")
+        return self.emotion
 
     def set_emotion(self, emotion):
-        self.set_emotion_pcts(emotion)
+        for i, e in enumerate(emotion):
+            self.emotion[i] = max(0, min(e, 100))
+        self.update_polygon_points()
+        self.logger.debug(f"emotion set: {self.emotion}")
+
+    def update_polygon_points(self):
         indices = [1, 2, 3]
         if self.flip:
-            self.emotion_pcts = [100 - e for e in self.emotion_pcts]
             indices = [0, 5, 4]
 
-        for i, tup in enumerate(zip(indices, self.emotion_pcts)):
+        for i, tup in enumerate(zip(indices, self.emotion)):
             self.polygon_points[tup[0]][1] = self.position[1] + self.size[1] * (tup[1] / 100)
+        self.logger.debug(f"polygon points updated: {self.polygon_points}")
 
 
 class Eye:
     # Here I should initialize all the elements that make up the eye
     def __init__(self, size, position, settings, object_name="Eye"):
         self.logger = create_logger(object_name)
-        self.settings = settings
+        self.settings = copy.deepcopy(settings)
         self.size = size
         self.position = position
         self.BG_COLOR = self.settings['bg_color']
@@ -107,17 +116,20 @@ class Eye:
         self.top_lash = EyeLash(
             size=self.lash_size,
             position=self.t_pos,
-            settings=self.settings['top_lash']
+            settings=self.settings['top_lash'],
+            object_name=f"{object_name} - Top Lash"
         )
         self.pupil = Pupil(
             size=self.size,
             position=self.position,
-            settings=self.settings['pupil']
+            settings=self.settings['pupil'],
+            object_name=f"{object_name} - Pupil"
         )
         self.bot_lash = EyeLash(
             size=self.lash_size,
             position=self.b_pos,
-            settings=self.settings['bot_lash']
+            settings=self.settings['bot_lash'],
+            object_name=f"{object_name} - Bottom Lash"
         )
 
         # And initialize the surface of it
