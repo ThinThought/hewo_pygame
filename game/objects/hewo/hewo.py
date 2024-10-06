@@ -1,4 +1,3 @@
-import copy
 import random
 import pygame
 from game.objects.hewo.face import Face
