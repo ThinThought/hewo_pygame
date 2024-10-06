@@ -1,7 +1,9 @@
 import pygame
+import logging
 import numpy as np
 from scipy.interpolate import make_interp_spline
 from game.settings import SettingsLoader
+logger = logging.getLogger(__name__)
 
 
 class Pupil:
@@ -45,23 +47,13 @@ class EyeLash:
             [w / 2 + x, 0 + y]
         ]
         self.flip = settings['flip']
-        self.set_points_by_pct(self.emotion_pcts)
+        self.set_emotion(self.emotion_pcts)
 
     def handle_event(self, event):
         pass
 
     def update(self):
         pass
-
-    def set_points_by_pct(self, emotion):
-        self.set_emotion_pcts(emotion)
-        indices = [1, 2, 3]
-        if self.flip:
-            self.emotion_pcts = [100 - e for e in self.emotion_pcts]
-            indices = [0, 5, 4]
-
-        for i, tup in enumerate(zip(indices, self.emotion_pcts)):
-            self.polygon_points[tup[0]][1] = self.position[1] + self.size[1] * (tup[1] / 100)
 
     def draw(self, surface):
         points = self.polygon_points[1:4]
@@ -89,17 +81,25 @@ class EyeLash:
 
     def set_emotion(self, emotion):
         self.set_emotion_pcts(emotion)
-        self.set_points_by_pct(emotion)
+        indices = [1, 2, 3]
+        if self.flip:
+            self.emotion_pcts = [100 - e for e in self.emotion_pcts]
+            indices = [0, 5, 4]
+
+        for i, tup in enumerate(zip(indices, self.emotion_pcts)):
+            self.polygon_points[tup[0]][1] = self.position[1] + self.size[1] * (tup[1] / 100)
 
 
 class Eye:
     # Here I should initialize all the elements that make up the eye
-    def __init__(self, size, position, settings=None):
+    def __init__(self, size, position, settings):
+        self.settings = settings
         if settings is None:
-            settings = SettingsLoader().load_settings("game.settings.hewo")['eye']
+
+            self.settings = SettingsLoader().load_settings("game.settings.hewo")['eye']
         self.size = size
         self.position = position
-        self.BG_COLOR = settings['bg_color']
+        self.BG_COLOR = self.settings['bg_color']
 
         # Sizes are in proportion to the eye size
         self.lash_size = (self.size[0], self.size[1] / 2)
@@ -110,17 +110,17 @@ class Eye:
         self.top_lash = EyeLash(
             size=self.lash_size,
             position=self.t_pos,
-            settings=settings['top_lash']
+            settings=self.settings['top_lash']
         )
         self.pupil = Pupil(
             size=self.size,
             position=self.position,
-            settings=settings['pupil']
+            settings=self.settings['pupil']
         )
         self.bot_lash = EyeLash(
             size=self.lash_size,
             position=self.b_pos,
-            settings=settings['bot_lash']
+            settings=self.settings['bot_lash']
         )
 
         # And initialize the surface of it

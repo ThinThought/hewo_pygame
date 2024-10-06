@@ -3,10 +3,6 @@ import numpy as np
 from scipy.interpolate import make_interp_spline
 from game.settings import SettingsLoader
 
-# Cargamos el diccionario de settings
-settings = SettingsLoader().load_settings("game.settings.hewo")
-mouth_settings = settings['mouth']
-
 
 class Lip:
     def __init__(self, size, position, settings):
@@ -54,7 +50,9 @@ class Lip:
 
 
 class Mouth:
-    def __init__(self, size, position, settings=mouth_settings):
+    def __init__(self, size, position, settings=None):
+        if settings is None:
+            settings = SettingsLoader().load_settings("game.settings.hewo")['mouth']
         self.size = size
         self.position = position
         self.surface = pygame.Surface(self.size)
