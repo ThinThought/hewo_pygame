@@ -12,6 +12,8 @@ class HeWo(Face):
         self.key_down_event = {
             pygame.K_SPACE: self.space_action,
             pygame.K_ESCAPE: self.escape_action,
+            # pygame.K_a: self.increase_size,
+            # pygame.K_b: self.decrease_size,
         }
         self.key_pressed_events = {
             pygame.K_UP: self.move_up,
@@ -21,8 +23,7 @@ class HeWo(Face):
             pygame.K_a: self.increase_size,
             pygame.K_b: self.decrease_size,
         }
-        self.move_step = 10
-        self.size_step = 1
+        self.step = 25
 
     def update(self):
         self.update_face()
@@ -93,6 +94,7 @@ class HeWo(Face):
                 action()
 
     def space_action(self):
+        self.set_emotion(self.emotion_dict_from_values(self.generate_random_vector()))
         self.logger.info("Space      key down")
 
     def escape_action(self):
@@ -100,35 +102,49 @@ class HeWo(Face):
         exit(0)
 
     def move_up(self):
-        self.position[1] -= self.move_step
+        position = self.position
+        position[1] -= self.step
+        self.set_position(position)
+        self.update_face()
         self.logger.info("Move up    key pressed")
 
     def move_down(self):
-        self.position[1] += self.move_step
+        position = self.position
+        position[1] += self.step
+        self.set_position(position)
+        self.update_face()
         self.logger.info("Move down  key pressed")
 
     def move_left(self):
-        self.position[0] -= self.move_step
+        position = self.position
+        position[0] -= self.step
+        self.set_position(position)
+        self.update_face()
         self.logger.info("Move left  key pressed")
 
     def move_right(self):
-        self.position[0] += self.move_step
+        position = self.position
+        position[0] += self.step
+        self.set_position(position)
         self.update_face()
         self.logger.info("Move right key pressed")
 
     def increase_size(self):
         s = self.size[1]
-        s += self.size_step
+        s += self.step
         size = [((1 + 5 ** (1 / 2)) / 2) * s, s]
         self.set_size(size)
-        # self.update_face()
+        self.set_position(self.position)
+        self.update_face()
         self.logger.info("Increase size")
 
     def decrease_size(self):
         s = self.size[1]
-        s -= self.size_step
+        s -= self.step
         size = [((1 + 5 ** (1 / 2)) / 2) * s, s]
         self.set_size(size)
+        self.set_position(self.position)
+        self.update_face()
         self.logger.info("Decrease size")
 
 

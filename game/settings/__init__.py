@@ -4,7 +4,7 @@ import yaml
 import logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] - %(name)s - %(message)s')
 
-def create_logger(name, debug=True  ):
+def create_logger(name, debug=True):
     msg = "LOGGER INIT FOR OBJECT - " + name
     logger = logging.getLogger(name)
     if debug:

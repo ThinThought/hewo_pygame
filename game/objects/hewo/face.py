@@ -8,7 +8,7 @@ PHI = ((1 + 5 ** (1 / 2)) / 2)  # Proporción áurea
 
 class Face:
     def __init__(self, settings=None, object_name="Face"):
-        self.settings = settings
+        self.settings = copy.deepcopy(settings)
         self.logger = create_logger(object_name)
         self.size = [PHI * self.settings['face']['size'],
                      self.settings['face']['size']]
@@ -60,7 +60,7 @@ class Face:
 
 
     def set_size(self, size):
-        self.size = size
+        self.size = [max(1,size[0]), max(1,size[1])]
         self.eye_size = [self.size[0] / 5, self.size[1] / 5 * 4]
         self.mouth_size = [self.size[0] / 5 * 3, self.size[1] / 5]
         self.left_eye.set_size(self.eye_size)
@@ -71,7 +71,7 @@ class Face:
         self.position[0] = max(0, min(pos[0], self.max_size[0] - self.size[0]))
         self.position[1] = max(0, min(pos[1], self.max_size[1] - self.size[1]))
         self.left_eye.set_position([0, 0] ) # Posición en la superficie
-        self.right_eye.set_position([self.eye_size[0] * 4, 0])
+        self.right_eye.set_position([self.eye_size[0] / 100 - 1, 0])
         self.mouth.position = [self.eye_size[0], self.eye_size[1]]
 
     def update(self):
