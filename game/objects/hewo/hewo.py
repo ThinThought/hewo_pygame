@@ -52,7 +52,7 @@ class HeWo(Face):
 
     def generate_random_vector(self, n=22):
         vec = [random.randint(0, 100) for _ in range(n)]
-        self.logger.info("Generating random emotion vector")
+        self.logger.debug("Generating random emotion vector")
         return vec
 
     def emotion_dict_from_values(self, values):
@@ -77,7 +77,7 @@ class HeWo(Face):
             'tl_a': tl[0], 'tl_b': tl[1], 'tl_c': tl[2], 'tl_d': tl[3], 'tl_e': tl[4],
             'bl_a': bl[0], 'bl_b': bl[1], 'bl_c': bl[2], 'bl_d': bl[3], 'bl_e': bl[4]
         }
-        self.logger.info(f"actual emotion vector: {emotion_dict.values()}")
+        self.logger.debug(f"actual emotion vector: {emotion_dict.values()}")
         self.logger.debug(f"Emotion Vector: {emotion_dict.values()}")
         return emotion_dict
 
@@ -93,7 +93,7 @@ class HeWo(Face):
         self.left_eye.set_emotion(letl, lebl)
         self.right_eye.set_emotion(retl, rebl)
         self.mouth.set_emotion(tl, bl)
-        self.logger.info(f"setting emotion vector: {emotion_dict.values()}")
+        self.logger.debug(f"setting emotion vector: {emotion_dict.values()}")
 
     ## Integración del control
     def handle_keydown(self, key):
@@ -180,6 +180,7 @@ class HeWo(Face):
 
     def space_action(self):
         self.emotion_goal = self.emotion_dict_from_values(self.generate_random_vector())
+        self.logger.info(f"Space      key down - Changing emotion to: {self.emotion_goal.values()}")
 
     def change_emotion(self):
         new_emotion, diff = self.transition(self.emotion_goal)
