@@ -1,5 +1,6 @@
 import random
 import pygame
+import time
 from game.objects.hewo.face import Face
 from game.settings import SettingsLoader, create_logger
 
@@ -10,7 +11,7 @@ class HeWo(Face):
         self.settings = settings
         super().__init__(settings=self.settings)
         self.key_down_event = {
-            pygame.K_SPACE: self.space_action,
+            # pygame.K_SPACE: self.space_action,
             pygame.K_ESCAPE: self.escape_action,
             # pygame.K_a: self.increase_size,
             # pygame.K_b: self.decrease_size,
@@ -22,12 +23,25 @@ class HeWo(Face):
             pygame.K_RIGHT: self.move_right,
             pygame.K_a: self.increase_size,
             pygame.K_b: self.decrease_size,
+            pygame.K_SPACE: self.space_action,
         }
-        self.step = 25
+        self.emotion_goal = self.emotion_dict_from_values(self.generate_random_vector())
+        self.step = 10
 
     def update(self):
-        self.update_face()
+        self.update_hewo()
+
+    def update_hewo(self, position=None, size=None):
         self.handle_keypressed()
+        if position is not None:
+            self.set_position(position)
+        if size is not None:
+            self.set_size(size)
+        self.change_emotion()
+        self.update_face()
+
+
+
 
     def handle_event(self, event):
         self.left_eye.handle_event(event)
@@ -63,7 +77,7 @@ class HeWo(Face):
             'tl_a': tl[0], 'tl_b': tl[1], 'tl_c': tl[2], 'tl_d': tl[3], 'tl_e': tl[4],
             'bl_a': bl[0], 'bl_b': bl[1], 'bl_c': bl[2], 'bl_d': bl[3], 'bl_e': bl[4]
         }
-        self.logger.info(f"Emotion Vector: {emotion_dict.values()}")
+        self.logger.info(f"actual emotion vector: {emotion_dict.values()}")
         self.logger.debug(f"Emotion Vector: {emotion_dict.values()}")
         return emotion_dict
 
@@ -79,6 +93,7 @@ class HeWo(Face):
         self.left_eye.set_emotion(letl, lebl)
         self.right_eye.set_emotion(retl, rebl)
         self.mouth.set_emotion(tl, bl)
+        self.logger.info(f"setting emotion vector: {emotion_dict.values()}")
 
     ## Integración del control
     def handle_keydown(self, key):
@@ -92,10 +107,6 @@ class HeWo(Face):
         for key, action in self.key_pressed_events.items():
             if keys[key]:
                 action()
-
-    def space_action(self):
-        self.set_emotion(self.emotion_dict_from_values(self.generate_random_vector()))
-        self.logger.info("Space      key down")
 
     def escape_action(self):
         self.logger.info("Escape     key down")
@@ -146,6 +157,42 @@ class HeWo(Face):
         self.set_position(self.position)
         self.update_face()
         self.logger.info("Decrease size")
+
+    def transition(self, emotion_b_dict):
+        start = self.get_emotion()
+        goal = emotion_b_dict
+        self.logger.debug(f"emotion vector goal: {goal.values()}")
+        diffs = []
+        for key in start.keys():
+            s = start[key]
+            g = goal[key]
+            diff = g - s
+            diffs.append(diff)
+            if diff > 0:
+                if start[key] < goal[key]:
+                    start[key] += 1
+
+            elif diff < 0:
+                if start[key] > goal[key]:
+                    start[key] -= 1
+        self.logger.debug(f"diffs: {diffs}")
+        return start, diffs
+
+    def space_action(self):
+        self.emotion_goal = self.emotion_dict_from_values(self.generate_random_vector())
+
+    def change_emotion(self):
+        new_emotion, diff = self.transition(self.emotion_goal)
+        self.set_emotion(new_emotion)
+        self.logger.debug(f"Space: going to {self.emotion_goal.values()}")
+        diff = [int(d) == 0 for d in diff]
+        self.logger.debug(f"Space: diff {all(diff)} - {diff}")
+        if all(diff):
+            self.logger.debug("Space: transition completed")
+            return True
+        else:
+            return False
+
 
 
 def test_component():
